@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b1791d4e56f8925bb98412d3770f9c1c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - normalMat: {instanceID: 0}
+  - safeMat: {instanceID: 0}
+  - lavaMat: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
