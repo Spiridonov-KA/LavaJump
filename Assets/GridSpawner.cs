@@ -6,12 +6,25 @@ public class GridSpawner : MonoBehaviour
     public GameObject cellPrefab;
     public int gridSize = 30;
     public float spacing = 1.1f;
+    
+    [SerializeField] private GameManager gameManager;
+
+    private Transform gridParent;
+
+    void Awake()
+    {
+        gridParent = new GameObject("GridContainer").transform;
+        gridParent.SetParent(this.transform);
+        
+        if (gameManager == null)
+            gameManager = FindObjectOfType<GameManager>();
+    }
 
     void Start()
     {
         if (cellPrefab == null)
         {
-            Debug.LogError("Не назначен префаб клетки! Перетащите Cell в поле Cell Prefab в Inspector.");
+            Debug.LogError("Не назначен префаб клетки!");
             return;
         }
 
@@ -19,12 +32,21 @@ public class GridSpawner : MonoBehaviour
         {
             for (int z = 0; z < gridSize; z++)
             {
-                Vector3 spawnPosition = new Vector3(x * spacing, 0f, z * spacing);
+                Vector3 spawnPos = new Vector3(
+                    x * spacing, 
+                    0f, 
+                    z * spacing
+                );
 
-                Instantiate(cellPrefab, spawnPosition, Quaternion.identity);
+                Instantiate(cellPrefab, spawnPos, Quaternion.identity, gridParent);
             }
         }
 
-        Debug.Log("Сетка создана! Всего клеток: " + (gridSize * gridSize));
+        Debug.Log($"Сетка создана! Клеток: {gridSize * gridSize}");
+        
+        if (gameManager != null)
+        {
+            gameManager.OnGridReady();
+        }
     }
 }

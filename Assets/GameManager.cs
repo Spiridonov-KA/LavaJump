@@ -22,29 +22,19 @@ public class GameManager : MonoBehaviour
     private bool isGameOver = false;
     private UIManager uiManager;
 
-    void Start()
+    public void OnGridReady()
     {
-        StartCoroutine(FindCellsAfterDelay());
-    }
-
-    IEnumerator FindCellsAfterDelay()
-    {
-        yield return null;
-
         allCells = FindObjectsOfType<CellController>();
-
         Debug.Log("Найдено клеток: " + allCells.Length);
 
         if (allCells.Length == 0)
         {
             Debug.LogError("Клетки не найдены!");
-            yield break;
+            return;
         }
 
         foreach (CellController cell in allCells)
-        {
             if (cell != null) cell.SetState(CellController.CellState.Normal, normalMat);
-        }
 
         Debug.Log("Игра запущена.");
         uiManager = FindObjectOfType<UIManager>();
