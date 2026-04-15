@@ -13,12 +13,12 @@ public class GameManager : MonoBehaviour
 
     [Header("Настройки")]
     public float phaseDuration = 30f;
-    public int safeCellCount = 5;
+    public float safeCellPercent = 0.3f;
 
     private float timer = 0f;
     private bool isLavaPhase = false;
     private CellController[] allCells;
-    
+
     private bool isGameOver = false;
     private UIManager uiManager;
 
@@ -30,17 +30,17 @@ public class GameManager : MonoBehaviour
     IEnumerator FindCellsAfterDelay()
     {
         yield return null;
-        
+
         allCells = FindObjectsOfType<CellController>();
-        
+
         Debug.Log("Найдено клеток: " + allCells.Length);
-        
+
         if (allCells.Length == 0)
         {
             Debug.LogError("Клетки не найдены!");
             yield break;
         }
-        
+
         foreach (CellController cell in allCells)
         {
             if (cell != null) cell.SetState(CellController.CellState.Normal, normalMat);
@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("Игра запущена.");
         uiManager = FindObjectOfType<UIManager>();
-	if (uiManager != null) uiManager.UpdateStatus(false);
+        if (uiManager != null) uiManager.UpdateStatus(false);
     }
 
     void Update()
@@ -69,21 +69,21 @@ public class GameManager : MonoBehaviour
             SwitchPhase();
         }
     }
-    
-	public float GetTimeLeft()
-	{
-	    return phaseDuration - timer;
-	}
-	
-	public bool IsLavaPhase()
-	{
-	    return isLavaPhase;
-	}
+
+    public float GetTimeLeft()
+    {
+        return phaseDuration - timer;
+    }
+
+    public bool IsLavaPhase()
+    {
+        return isLavaPhase;
+    }
 
     public void GameOver()
     {
         if (isGameOver) return;
-        
+
         isGameOver = true;
         Time.timeScale = 0;
         Debug.Log("GAME OVER! Нажми R для рестарта.");
@@ -103,29 +103,29 @@ public class GameManager : MonoBehaviour
         if (isLavaPhase)
         {
             Debug.Log("Фаза: ЛАВА!");
-            
+
             if (uiManager != null) uiManager.UpdateStatus(true);
-            
+
             foreach (CellController c in allCells)
                 if (c != null) c.SetState(CellController.CellState.Lava, lavaMat);
 
-            List<int> availableIndices = new List<int>();
-            for (int i = 0; i < allCells.Length; i++)
-                availableIndices.Add(i);
+            int remaining = (int)(allCells.Length * safeCellPercent);
+            int totalCells = allCells.Length;
+            int[] indices = new int[totalCells];
+            for (int i = 0; i < totalCells; i++) indices[i] = i;
 
-            for (int i = 0; i < safeCellCount && availableIndices.Count > 0; i++)
+            for (int i = 0; i < remaining && i < totalCells; i++)
             {
-                int randIdx = Random.Range(0, availableIndices.Count);
-                int realIdx = availableIndices[randIdx];
-                
-                allCells[realIdx].SetState(CellController.CellState.Safe, safeMat);
-                availableIndices.RemoveAt(randIdx);
+                int swapIdx = Random.Range(i, totalCells);
+                (indices[i], indices[swapIdx]) = (indices[swapIdx], indices[i]); // swap
+
+                allCells[indices[i]].SetState(CellController.CellState.Safe, safeMat);
             }
         }
         else
         {
             Debug.Log("Фаза: Нормальный пол.");
-            
+
             if (uiManager != null) uiManager.UpdateStatus(false);
             foreach (CellController c in allCells)
             {
